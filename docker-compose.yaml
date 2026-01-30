@@ -10,7 +10,7 @@ services:
     environment:
       POSTGRES_DB: source_db
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: secret
+      POSTGRES_PASSWORD: ${SOURCE_POSTGRES_PASSWORD}
     volumes:
       - ./source_db_init/init.sql:/docker-entrypoint-initdb.d/init.sql
 
@@ -23,7 +23,7 @@ services:
     environment:
       POSTGRES_DB: destination_db
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: secret
+      POSTGRES_PASSWORD: ${DEST_POSTGRES_PASSWORD}
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d destination_db"]
       interval: 5s
@@ -74,7 +74,7 @@ services:
       - elt_network
     environment: 
       - POSTGRES_USER=airflow
-      - POSTGRES_PASSWORD=airflow
+      - POSTGRES_PASSWORD=${AIRFLOW_DB_PASSWORD}
       - POSTGRES_DB=airflow
     # healthcheck:
     #   test: ["CMD-SHELL", "pg_isready -U airflow -d airflow"]
@@ -90,10 +90,10 @@ services:
     networks:
       - elt_network
     environment:
-      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgres+psycopg2://airflow:airflow@postgres/airflow
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgres+psycopg2://airflow:${AIRFLOW_DB_PASSWORD}@postgres/airflow
     command: >
       bash -c "airflow db init &&
-               airflow users create --username airflow --password password --firstname John --lastname Doe --role Admin --email adming@example.com"
+               airflow users create --username ${AIRFLOW_ADMIN_USER} --password ${AIRFLOW_ADMIN_PASSWORD} --firstname John --lastname Doe --role Admin --email adming@example.com"
 
   webserver:
     build: 
@@ -115,13 +115,13 @@ services:
     environment:
       - LOAD_EX=n
       - EXECUTOR=Local
-      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgres+psycopg2://airflow:airflow@postgres/airflow
-      - AIRFLOW__CORE_FERNET_KEY=tSEzerXo5Q3liZg1iX-IysQ6bSFjkep2dsxApC529II=
-      - AIRFLOW__WEBSERVER__DEFAULT__USER_USERNAME=airflow
-      - AIRFLOW__WEBSERVER__DEFAULT__USER_PASSWORD=password
-      - AIRFLOW_WWW_USER_USERNAME=airflow
-      - AIRFLOW_WWW_USER_PASSWORD=password
-      - AIRFLOW__WEBSERVER__SECRET_KEY=secret
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgres+psycopg2://airflow:${AIRFLOW_DB_PASSWORD}@postgres/airflow
+      - AIRFLOW__CORE_FERNET_KEY=${AIRFLOW_FERNET_KEY}
+      - AIRFLOW__WEBSERVER__DEFAULT__USER_USERNAME=${AIRFLOW_ADMIN_USER}
+      - AIRFLOW__WEBSERVER__DEFAULT__USER_PASSWORD=${AIRFLOW_ADMIN_PASSWORD}
+      - AIRFLOW_WWW_USER_USERNAME=${AIRFLOW_ADMIN_USER}
+      - AIRFLOW_WWW_USER_PASSWORD=${AIRFLOW_ADMIN_PASSWORD}
+      - AIRFLOW__WEBSERVER__SECRET_KEY=${AIRFLOW_SECRET_KEY}
     ports:
       - "8080:8080"
     command: webserver  
@@ -147,13 +147,13 @@ services:
     environment:
       - LOAD_EX=n
       - EXECUTOR=Local
-      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgres+psycopg2://airflow:airflow@postgres/airflow
-      - AIRFLOW__CORE_FERNET_KEY=tSEzerXo5Q3liZg1iX-IysQ6bSFjkep2dsxApC529II=
-      - AIRFLOW__WEBSERVER__DEFAULT__USER_USERNAME=airflow
-      - AIRFLOW__WEBSERVER__DEFAULT__USER_PASSWORD=password
-      - AIRFLOW_WWW_USER_USERNAME=airflow
-      - AIRFLOW_WWW_USER_PASSWORD=password
-      - AIRFLOW__WEBSERVER__SECRET_KEY=secret
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgres+psycopg2://airflow:${AIRFLOW_DB_PASSWORD}@postgres/airflow
+      - AIRFLOW__CORE_FERNET_KEY=${AIRFLOW_FERNET_KEY}
+      - AIRFLOW__WEBSERVER__DEFAULT__USER_USERNAME=${AIRFLOW_ADMIN_USER}
+      - AIRFLOW__WEBSERVER__DEFAULT__USER_PASSWORD=${AIRFLOW_ADMIN_PASSWORD}
+      - AIRFLOW_WWW_USER_USERNAME=${AIRFLOW_ADMIN_USER}
+      - AIRFLOW_WWW_USER_PASSWORD=${AIRFLOW_ADMIN_PASSWORD}
+      - AIRFLOW__WEBSERVER__SECRET_KEY=${AIRFLOW_SECRET_KEY}
     command: scheduler
 
 networks:
