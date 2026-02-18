@@ -14,7 +14,7 @@ A professional Python-based solution for automated entity resolution and analyti
 Unlike traditional ETL, this tool follows a **Load-then-Transform** approach to ensure data lineage and flexibility:
 
 1. **Phase 1: Extract & Load (Python)**
-    - Raw CSV datasets (Spotify & Airbnb) are ingested into a dedicated "raw" schema within the PostgreSQL data warehouse.
+    - Raw CSV datasets—including **films**, **actors**, **film_ratings**, and **film_actors**—are ingested into a dedicated **"raw"** schema within the PostgreSQL data warehouse.
 2. **Phase 2: Orchestration (Apache Airflow)**
     - Automated scheduling and monitoring of the entire workflow, ensuring dependency management between tasks.
 3. **Phase 3: Transformation (dbt)**
